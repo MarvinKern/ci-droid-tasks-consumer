@@ -2,7 +2,7 @@ package com.societegenerale.cidroid.tasks.consumer.infrastructure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.societegenerale.cidroid.tasks.consumer.infrastructure.config.InfraConfig;
-import com.societegenerale.cidroid.tasks.consumer.services.model.github.PushEvent;
+import com.societegenerale.cidroid.tasks.consumer.services.model.PushEvent;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class GithubEventListenerLIVETest {
 
     @Autowired
-    GithubEventListener githubEventListener;
+    SourceControlEventListener sourceControlEventListener;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -31,7 +31,7 @@ public class GithubEventListenerLIVETest {
 
         PushEvent pushEvent = objectMapper.readValue(pushEventPayload, PushEvent.class);
 
-        githubEventListener.onGitHubPushEventOnDefaultBranch(pushEvent);
+        sourceControlEventListener.onPushEventOnDefaultBranch(pushEvent);
 
     }
 

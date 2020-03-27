@@ -1,9 +1,9 @@
 package com.societegenerale.cidroid.tasks.consumer.services;
 
-import com.societegenerale.cidroid.tasks.consumer.services.eventhandlers.PushEventOnDefaultBranchHandler;
+import com.societegenerale.cidroid.tasks.consumer.services.eventhandlers.PushEventHandler;
+import com.societegenerale.cidroid.tasks.consumer.services.model.PushEvent;
 import com.societegenerale.cidroid.tasks.consumer.services.model.github.PRmergeableStatus;
 import com.societegenerale.cidroid.tasks.consumer.services.model.github.PullRequest;
-import com.societegenerale.cidroid.tasks.consumer.services.model.github.PushEvent;
 import com.societegenerale.cidroid.tasks.consumer.services.monitoring.Event;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +18,9 @@ import static java.util.stream.Collectors.toList;
 @Slf4j
 public class PushEventOnDefaultBranchService {
 
-    private RemoteGitHub gitHub;
+    private RemoteSourceControl gitHub;
 
-    private List<PushEventOnDefaultBranchHandler> actionHandlers;
+    private List<PushEventHandler> actionHandlers;
 
     @Setter
     private long sleepDurationBeforeTryingAgainToFetchMergeableStatus = 300;
@@ -28,13 +28,13 @@ public class PushEventOnDefaultBranchService {
     @Setter
     private int maxRetriesForMergeableStatus = 10;
 
-    public PushEventOnDefaultBranchService(RemoteGitHub gitHub, List<PushEventOnDefaultBranchHandler> pushEventOnDefaultBranchHandlers) {
+    public PushEventOnDefaultBranchService(RemoteSourceControl gitHub, List<PushEventHandler> pushEventHandlers) {
 
         this.gitHub = gitHub;
-        this.actionHandlers = pushEventOnDefaultBranchHandlers;
+        this.actionHandlers = pushEventHandlers;
     }
 
-    public void onGitHubPushEvent(PushEvent pushEvent) {
+    public void onPushEvent(PushEvent pushEvent) {
 
         if (shouldNotProcess(pushEvent)) {
             return;
@@ -53,12 +53,12 @@ public class PushEventOnDefaultBranchService {
             logPrMergeabilityStatus(openPRsWithDefinedMergeabilityStatus);
         }
 
-        for (PushEventOnDefaultBranchHandler pushEventOnDefaultBranchHandler : actionHandlers) {
+        for (PushEventHandler pushEventHandler : actionHandlers) {
 
             try {
-                pushEventOnDefaultBranchHandler.handle(pushEvent, openPRsWithDefinedMergeabilityStatus);
+                pushEventHandler.handle(pushEvent, openPRsWithDefinedMergeabilityStatus);
             } catch (RuntimeException e) {
-                log.warn("exception thrown during event handling by " + pushEventOnDefaultBranchHandler.getClass(), e);
+                log.warn("exception thrown during event handling by " + pushEventHandler.getClass(), e);
             }
         }
 

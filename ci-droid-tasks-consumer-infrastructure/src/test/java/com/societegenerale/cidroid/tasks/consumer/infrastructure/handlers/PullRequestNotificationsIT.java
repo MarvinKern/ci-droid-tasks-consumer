@@ -12,7 +12,7 @@ import static com.jayway.awaitility.Awaitility.await;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PullRequestNotificationsIT extends GitHubEventHandlerIT {
+public class PullRequestNotificationsIT extends SourceControlEventHandlerIT {
 
     private static final String OWNER_LOGIN = "octocat";
     private static final String OWNER_EMAIL = "octocat@github.com";
@@ -28,7 +28,7 @@ public class PullRequestNotificationsIT extends GitHubEventHandlerIT {
 
     @Test
     public void shouldNotifyPullRequestOwnerIfNotMergeable() {
-        githubEventListener.onGitHubPushEventOnDefaultBranch(pushEvent);
+        sourceControlEventListener.onPushEventOnDefaultBranch(pushEvent);
 
         await().atMost(2, SECONDS)
                 .until(() -> assertThat(notifier.getNotifications()).hasSize(1));
